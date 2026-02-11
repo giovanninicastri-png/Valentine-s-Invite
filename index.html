@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Valentine Invite</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: rgba(255, 255, 255, 0.08);
+      --text: #f6f7fb;
+      --muted: rgba(246, 247, 251, 0.75);
+      --accent: #ff4d7d;
+      --accent2: #7aa8ff;
+      --shadow: 0 20px 60px rgba(0,0,0,0.35);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 10%, rgba(255,77,125,0.25), transparent 55%),
+        radial-gradient(900px 500px at 85% 20%, rgba(122,168,255,0.25), transparent 55%),
+        var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(720px, 100%);
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 { margin: 0 0 10px; font-size: 32px; }
+    p { margin: 0 0 18px; color: var(--muted); }
+
+    .row { display: grid; gap: 12px; }
+    .grid2 { grid-template-columns: 1fr 1fr; }
+
+    label { font-size: 14px; }
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.3);
+      color: white;
+    }
+
+    .btns { margin-top: 15px; display: flex; gap: 10px; }
+
+    button {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: black;
+    }
+
+    .ghost {
+      background: rgba(255,255,255,0.15);
+      color: white;
+    }
+
+    .status { margin-top: 10px; min-height: 20px; }
+
+    /* Modal */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(0,0,0,0.6);
+    }
+
+    .overlay.show { display: grid; }
+
+    .modal {
+      background: #111633;
+      padding: 24px;
+      border-radius: 20px;
+      width: min(600px, 90%);
+    }
+
+    .plan {
+      margin-top: 15px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .item {
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .time { font-weight: bold; color: var(--accent2); }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1 id="title">Hello 👋</h1>
+  <p id="subtitle">Answer the questions to unlock the final step.</p>
+  <div id="stage"></div>
+  <div class="status" id="status"></div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>Our Valentine’s Day ❤️</h2>
+    <div class="plan">
+      <div class="item"><div>Walk through Jardin du Luxembourg</div><div class="time">15:00</div></div>
+      <div class="item"><div>Museo Carnavalet / Montmartre view</div><div class="time">16:00</div></div>
+      <div class="item"><div>Exercise for GP in Louis Vuitton</div><div class="time">18:00</div></div>
+      <div class="item"><div>Dinner at home — cooking TOGETHER a new recipe</div><div class="time">20:00</div></div>
+    </div>
+    <div class="btns" style="justify-content:flex-end;">
+      <button class="ghost" onclick="overlay.classList.remove('show')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const stage = document.getElementById("stage");
+const statusEl = document.getElementById("status");
+const overlay = document.getElementById("overlay");
+
+let step = 0;
+let firstName = "";
+let lastName = "";
+
+function normalize(s){ return s.trim().toLowerCase(); }
+
+function render(){
+  if(step === 0){
+    stage.innerHTML = `
+      <div class="row grid2">
+        <div>
+          <label>First name</label>
+          <input id="fn">
+        </div>
+        <div>
+          <label>Last name</label>
+          <input id="ln">
+        </div>
+      </div>
+      <div class="btns">
+        <button class="primary" onclick="next0()">Continue</button>
+      </div>
+    `;
+  }
+
+  if(step === 1){
+    stage.innerHTML = `
+      <label>Who is the guy who invited you?</label>
+      <input id="q1">
+      <div class="btns">
+        <button class="primary" onclick="check1()">Submit</button>
+      </div>
+    `;
+  }
+
+  if(step === 2){
+    stage.innerHTML = `
+      <label>What is Giovanni’s favorite color?</label>
+      <input id="q2">
+      <div class="btns">
+        <button class="primary" onclick="check2()">Submit</button>
+      </div>
+    `;
+  }
+
+  if(step === 3){
+    stage.innerHTML = `
+      <label>Would you be my valentine?</label>
+      <input id="q3" placeholder="Yes / No">
+      <div class="btns">
+        <button class="primary" onclick="check3()">Answer</button>
+      </div>
+    `;
+  }
+}
+
+function next0(){
+  firstName = document.getElementById("fn").value;
+  lastName = document.getElementById("ln").value;
+  if(!firstName || !lastName){
+    statusEl.textContent = "Please enter both name and surname 🙂";
+    return;
+  }
+  step = 1;
+  statusEl.textContent = "";
+  render();
+}
+
+function check1(){
+  if(normalize(document.getElementById("q1").value) === "giovanni"){
+    step = 2;
+    statusEl.textContent = "";
+    render();
+  } else {
+    statusEl.textContent = "Wrong answer 😅 Try again.";
+  }
+}
+
+function check2(){
+  if(normalize(document.getElementById("q2").value) === "blue"){
+    step = 3;
+    statusEl.textContent = "Correct ✅ Final question!";
+    render();
+  } else {
+    statusEl.textContent = "Hint: it's in English 😉";
+  }
+}
+
+function check3(){
+  let ans = normalize(document.getElementById("q3").value);
+  if(ans === "yes"){
+    overlay.classList.add("show");
+  } else {
+    statusEl.textContent = "No? Try again 😌";
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>
